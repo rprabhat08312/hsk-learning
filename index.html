@@ -188,6 +188,7 @@ let auth,db,user=null,unsub=null,stories=[];
 if(fbOn){
  firebase.initializeApp(firebaseConfig); auth=firebase.auth(); db=firebase.firestore();
  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+ const col=n=>db.collection('users').doc(user.uid).collection(n);
  $('#login').hidden=false;
  $('#login').onclick=()=>{
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{
@@ -211,10 +212,7 @@ if(fbOn){
    if(!u){stories=[];showLib();return}
    syncProg().catch(()=>{});
    col('prefs').doc('settings').get().then(s=>{if(s.exists){Object.assign(st,s.data());apply(false)}}).catch(()=>{});
-   unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{
-    stories=q.docs.map(d=>({id:d.id,...d.data()}));
-    if(!reading) showLib();
-   },e=>say('Could not load library: '+e.message,true));
+   unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{stories=q.docs.map(d=>({id:d.id,...d.data()}));if(!reading) showLib();},e=>say('Could not load library: '+e.message,true));
   });
  })();
 }/* ---------- PDF → positioned, coloured, classified text ---------- */
