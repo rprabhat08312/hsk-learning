@@ -254,6 +254,7 @@ async function extract(pdf){
   const items=[];
 
   for(const it of tc.items){
+   mode=null; cell=null; hasCells=false;
    const str=norm(it.str||''); if(!str.trim()) continue;
    anyText=true;
    const tr=pdfjsLib.Util.transform(v1.transform,it.transform);
