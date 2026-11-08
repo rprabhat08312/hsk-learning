@@ -186,6 +186,7 @@ const say=(t,err)=>{msg.className=err?'err':'';msg.textContent=t};
 const fbOn=typeof firebase!=='undefined'&&!firebaseConfig.apiKey.startsWith('PASTE');
 let auth,db,user=null,unsub=null,stories=[];
 if(fbOn){
+ $('#login').hidden=false;
  $('#login').onclick=()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()).catch(e=>{
   if(e.code!=='auth/popup-closed-by-user'){
    const hint=e.code==='auth/internal-error'?' — enable Google Sign-In in Firebase Console (Authentication → Sign-in method → Google → Enable) and confirm this domain is in Authorized domains':'';
