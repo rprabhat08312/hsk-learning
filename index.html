@@ -188,7 +188,6 @@ let auth,db,user=null,unsub=null,stories=[];
 if(fbOn){
  firebase.initializeApp(firebaseConfig); auth=firebase.auth(); db=firebase.firestore();
  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
- const col=n=>db.collection('users').doc(user.uid).collection(n);
  $('#login').hidden=false;
  $('#login').onclick=()=>{
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{
@@ -215,6 +214,8 @@ if(fbOn){
    unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{stories=q.docs.map(d=>({id:d.id,...d.data()}));if(!reading) showLib();},e=>say('Could not load library: '+e.message,true));
   });
  })();
+
+const col=n=>db&&user?db.collection('users').doc(user.uid).collection(n):null;
 }/* ---------- PDF → positioned, coloured, classified text ---------- */
 const CJK='\\u2e80-\\u2fdf\\u3400-\\u9fff\\uf900-\\ufaff', PU='，。、！？：；“”《》‘’（）…';
 const reCJK=new RegExp('['+CJK+']');
@@ -346,19 +347,22 @@ function showLib(){
 
 /* Each page is its own doc in "stories" (no "updated" field, so it never shows in the library list). */
 async function saveDoc(doc){
+ if(!db||!user){say("Sign in to save stories to your account.",true);return}
  const ref=col('stories').doc(), b=db.batch();
  doc.pages.forEach((p,i)=>b.set(col('stories').doc(ref.id+'_p'+i),{parent:ref.id,i,data:JSON.stringify(p)}));
  b.set(ref,{title:doc.title,words:doc.words,pages:doc.pages.length,v:2,updated:Date.now()});
  await b.commit();
 }
 async function openStory(s){
- if(s.v!==2){say('This story was saved in the old format. Delete it and open the PDF again.',true);return}
+ if(!db||!user){say("Sign in to open saved stories.",true);return}
+ if(s.v!==undefined && s.v!==2){say("This story was saved in the old format. Delete it and open the PDF again.",true);return}
  say('Loading…');
  const q=await col('stories').where('parent','==',s.id).get();
  const pages=q.docs.map(d=>d.data()).sort((a,b)=>a.i-b.i).map(d=>JSON.parse(d.data));
  await render({v:2,title:s.title,words:s.words,pages});
 }
 async function delStory(id){
+ if(!db||!user){say("Sign in to delete stories.",true);return}
  const q=await col('stories').where('parent','==',id).get(), b=db.batch();
  q.docs.forEach(d=>b.delete(d.ref)); b.delete(col('stories').doc(id)); await b.commit();
 }
