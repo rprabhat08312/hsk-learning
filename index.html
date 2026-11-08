@@ -185,6 +185,7 @@ const say=(t,err)=>{msg.className=err?'err':'';msg.textContent=t};
 /* ---------- Firebase ---------- */
 const fbOn=typeof firebase!=='undefined'&&!firebaseConfig.apiKey.startsWith('PASTE');
 let auth,db,user=null,unsub=null,stories=[];
+const col=n=>db&&user?db.collection('users').doc(user.uid).collection(n):null;
 if(fbOn){
  firebase.initializeApp(firebaseConfig); auth=firebase.auth(); db=firebase.firestore();
  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
@@ -215,7 +216,6 @@ if(fbOn){
   });
  })();
 
-const col=n=>db&&user?db.collection('users').doc(user.uid).collection(n):null;
 }/* ---------- PDF → positioned, coloured, classified text ---------- */
 const CJK='\\u2e80-\\u2fdf\\u3400-\\u9fff\\uf900-\\ufaff', PU='，。、！？：；“”《》‘’（）…';
 const reCJK=new RegExp('['+CJK+']');
