@@ -7,14 +7,14 @@
 <meta name="theme-color" content="#0f151c" media="(prefers-color-scheme:dark)">
 <meta name="description" content="Read HSK story PDFs with pinyin and meanings, learn HSK 1–3 words with stroke-order animation, quizzes and games.">
 <title>HSK Story Reader &amp; HSK 1–3 Quizzes</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;700&family=Figtree:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Figtree:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#eef1f4;--card:#fbfcfd;--ink:#18222f;--mute:#5d6b7b;--line:#d3dae1;--jade:#0b6e68;--sup:#b23a26;--on:#18222f;--onink:#fbfcfd;box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root{--bg:#0f151c;--card:#171f29;--ink:#e7ecf2;--mute:#92a1b2;--line:#2b3644;--jade:#4fd1c5;--sup:#ff8a73;--on:#e7ecf2;--onink:#0f151c}}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,"Segoe UI",sans-serif;padding-top:env(safe-area-inset-top,0px)}
 header{position:sticky;top:0;z-index:9;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px}
 .bar{max-width:1000px;margin:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-h1{font:700 18px "Noto Serif SC",serif;margin:0 auto 0 0}
+h1{font:700 18px "Noto Sans SC",serif;margin:0 auto 0 0}
 button,.file{font:600 14px Figtree,sans-serif;border:1px solid var(--line);background:transparent;color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
 button[aria-pressed="true"]{background:var(--on);color:var(--onink);border-color:var(--on)}
 button:focus-visible,.file:focus-within{outline:2px solid var(--jade);outline-offset:2px}
@@ -24,13 +24,13 @@ button:focus-visible,.file:focus-within{outline:2px solid var(--jade);outline-of
 main{max-width:1000px;margin:0 auto;padding:20px 16px calc(60px + env(safe-area-inset-bottom,0px))}
 #drop{border:2px dashed var(--line);border-radius:14px;padding:36px 20px;text-align:center;color:var(--mute);margin-bottom:16px}
 #drop.over{border-color:var(--jade);color:var(--ink)}
-#drop b{display:block;font:700 22px "Noto Serif SC",serif;color:var(--ink);margin-bottom:6px}
+#drop b{display:block;font:700 22px "Noto Sans SC",serif;color:var(--ink);margin-bottom:6px}
 #msg{min-height:22px;color:var(--mute);margin:0 0 10px;font-size:14px}
 #msg.err{color:var(--sup)}
-.title{font:700 28px "Noto Serif SC",serif;margin:4px 0 18px}
+.title{font:700 28px "Noto Sans SC",serif;margin:4px 0 18px}
 .item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
 .item:hover{border-color:var(--jade)}
-.item b{font:700 17px "Noto Serif SC",serif;flex:1}
+.item b{font:700 17px "Noto Sans SC",serif;flex:1}
 .item span{font-size:13px;color:var(--mute)}
 .item button{padding:4px 10px}
 
@@ -54,21 +54,21 @@ main{max-width:1000px;margin:0 auto;padding:20px 16px calc(60px + env(safe-area-
 .app-tab [data-t],.app-tab #sm,.app-tab #lg,.app-tab #back,.app-tab .file{display:none}
 #ap{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .card2{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.h2{font:700 22px "Noto Serif SC",serif;margin:0 0 12px}
+.h2{font:700 22px "Noto Sans SC",serif;margin:0 0 12px}
 .sub{color:var(--mute);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .go{background:var(--jade);color:#fff;border-color:var(--jade);padding:10px 18px;font-size:15px}
 input.srch,select.sel{width:100%;box-sizing:border-box;font:16px Figtree,sans-serif;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:8px}
 .wr{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)}
-.wr .z{font:500 26px "Noto Serif SC",serif;min-width:2.2em}
+.wr .z{font:500 26px "Noto Sans SC",serif;min-width:2.2em}
 .wr .m{flex:1}.wr .m b{display:block;color:var(--jade);font-weight:600}
 .wr .m span{font-size:13px;color:var(--mute)}
 .ib{padding:6px 10px;border-radius:10px}
-.qbig{font:500 56px/1.2 "Noto Serif SC",serif;text-align:center;margin:12px 0}
+.qbig{font:500 56px/1.2 "Noto Sans SC",serif;text-align:center;margin:12px 0}
 .qen{font:600 24px Figtree,sans-serif;text-align:center;margin:18px 0}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 @media (max-width:480px){.opts{grid-template-columns:1fr}}
-.opts button{padding:14px 10px;font-size:18px;border-radius:12px;font-family:"Noto Serif SC",Figtree,sans-serif}
+.opts button{padding:14px 10px;font-size:18px;border-radius:12px;font-family:"Noto Sans SC",Figtree,sans-serif}
 .opts button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
 .opts button.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
 .rev{text-align:center;margin-top:12px;font-size:16px;min-height:24px}
@@ -76,7 +76,7 @@ input.srch,select.sel{width:100%;box-sizing:border-box;font:16px Figtree,sans-se
 .bar2 i{display:block;height:100%;background:var(--jade)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
-.stat b{display:block;font:700 28px "Noto Serif SC",serif;color:var(--jade)}
+.stat b{display:block;font:700 28px "Noto Sans SC",serif;color:var(--jade)}
 .stat span{font-size:12px;color:var(--mute)}
 .days{display:flex;align-items:flex-end;gap:5px;height:90px}
 .days div{flex:1;background:var(--jade);border-radius:4px 4px 0 0;min-height:2px;opacity:.85}
@@ -1235,7 +1235,7 @@ function story(){
   const c=el('div','card2');c.style.textAlign='center';c.append(el('div','qen',st.zh));const tp=el('div','rev');tp.append(pyH(st.py));c.append(tp,el('div','sub',st.en),el('div','sub',st.ext?'Words you did not choose appear in grey with their meaning in brackets.':'Made only from your chosen words. Tap a line for Roman + English.'));b.append(c);
   const bar2=el('div','chips');let all=false;bar2.append(btn('🔊 Read story',async()=>{const g=gen;for(const l of st.lines){if(g!==gen)return;await spk(l.zh);await sleep(250)}}),btn('Show all pinyin + English',()=>{all=!all;[...ls.children].forEach(x=>x.toggle(all))}));b.append(bar2);
   const ls=el('div');b.append(ls);
-  st.lines.forEach(l=>{const c=el('div','card2'),top=el('div');top.style.cssText='display:flex;gap:8px;align-items:flex-start';const t=el('div');t.style.cssText='flex:1;font:500 24px/1.5 "Noto Serif SC",serif';
+  st.lines.forEach(l=>{const c=el('div','card2'),top=el('div');top.style.cssText='display:flex;gap:8px;align-items:flex-start';const t=el('div');t.style.cssText='flex:1;font:500 24px/1.5 "Noto Sans SC",serif';
    l.view.forEach(x=>{const s=el('span','',x.z);if(x.tag===2){s.style.cssText='font-size:14px;color:var(--mute)'}else if(x.hit&&!x.empty&&!FUNC.has(x.z)){s.style.cssText='color:var(--jade);font-weight:700'}else if(!x.hit&&!/[，。？！]/.test(x.z))s.style.color='var(--mute)';t.append(s)});
    const det=el('div');det.hidden=true;const p=el('div','rev');p.style.textAlign='left';p.append(pyH(l.py));det.append(p,el('div','',l.en));
    top.append(t,btn('🔊',e=>{e.stopPropagation();spk(l.zh)},'ib'));c.append(top,det);c.style.cursor='pointer';c.onclick=()=>{det.hidden=!det.hidden};c.toggle=on=>{det.hidden=!on};ls.append(c)});
