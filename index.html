@@ -189,7 +189,17 @@ if(fbOn){
  firebase.initializeApp(firebaseConfig); auth=firebase.auth(); db=firebase.firestore();
  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
  $('#login').hidden=false;
- $('#login').onclick=()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+ $('#login').onclick=()=>{
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{
+   if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'){
+    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+   } else if(e.code!=='auth/popup-closed-by-user'){
+    const hint=e.code==='auth/internal-error'?' — enable Google Sign-In in Firebase Console (Authentication → Sign-in method → Google → Enable)':'';
+    say('Sign-in failed ('+e.code+')'+hint,true);
+    console.log('Firebase auth error:',e);
+   }
+  });
+ };
  $('#logout').onclick=()=>auth.signOut();
  // Check for existing user immediately (handles redirect return)
  (()=>{
