@@ -191,17 +191,22 @@ if(fbOn){
  $('#login').hidden=false;
  $('#login').onclick=()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
  $('#logout').onclick=()=>auth.signOut();
- auth.onAuthStateChanged(u=>{
-  user=u; if(unsub){unsub();unsub=null}
-  $('#login').hidden=!!u; $('#logout').hidden=!u; $('#who').textContent=u?(u.displayName||u.email):'';
-  if(!u){stories=[];showLib();return}
-  syncProg().catch(()=>{});
-  col('prefs').doc('settings').get().then(s=>{if(s.exists){Object.assign(st,s.data());apply(false)}}).catch(()=>{});
-  unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{
-   stories=q.docs.map(d=>({id:d.id,...d.data()}));
-   if(!reading) showLib();
-  },e=>say('Could not load library: '+e.message,true));
- });
+ // Check for existing user immediately (handles redirect return)
+ (()=>{
+  const u=auth.currentUser;
+  if(u){user=u;$('#login').hidden=true;$('#logout').hidden=false;$('#who').textContent=user.displayName||user.email;syncProg().catch(()=>{});col('prefs').doc('settings').get().then(s=>{if(s.exists){Object.assign(st,s.data());apply(false)}}).catch(()=>{});unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{stories=q.docs.map(d=>({id:d.id,...d.data()}));if(!reading) showLib();},e=>say('Could not load library: '+e.message,true));return;}
+  auth.onAuthStateChanged(u=>{
+   user=u; if(unsub){unsub();unsub=null}
+   $('#login').hidden=!!u; $('#logout').hidden=!u; $('#who').textContent=u?(u.displayName||u.email):'';
+   if(!u){stories=[];showLib();return}
+   syncProg().catch(()=>{});
+   col('prefs').doc('settings').get().then(s=>{if(s.exists){Object.assign(st,s.data());apply(false)}}).catch(()=>{});
+   unsub=col('stories').orderBy('updated','desc').onSnapshot(q=>{
+    stories=q.docs.map(d=>({id:d.id,...d.data()}));
+    if(!reading) showLib();
+   },e=>say('Could not load library: '+e.message,true));
+  });
+ })();
 }/* ---------- PDF → positioned, coloured, classified text ---------- */
 const CJK='\\u2e80-\\u2fdf\\u3400-\\u9fff\\uf900-\\ufaff', PU='，。、！？：；“”《》‘’（）…';
 const reCJK=new RegExp('['+CJK+']');
