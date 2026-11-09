@@ -299,6 +299,7 @@ async function extract(pdf){
     /* split at every ¶ so a paragraph start inside an item is never swallowed by the previous translation */
     const cuts=[0]; for(let i=1;i<str.length;i++) if(str[i]==='¶') cuts.push(i); cuts.push(str.length);
     for(let ci=0;ci<cuts.length-1;ci++){
+     mode=null; cell=null; hasCells=false;
      const s0=cuts[ci], seg=str.slice(s0,cuts[ci+1]);
      if(reCJK.test(seg)){ for(const mt of seg.matchAll(/\S+/g)) feed(mt[0],s0+mt.index,s0+mt.index+mt[0].length) }
      else { const a=seg.search(/\S/); if(a>=0){ const b=seg.trimEnd().length; feed(seg.slice(a,b),s0+a,s0+b) } }
