@@ -226,7 +226,7 @@ const r2=v=>Math.round(v*100)/100;
 
 async function extract(pdf){
  const R=2, pages=[], mc=document.createElement('canvas').getContext('2d');
- let mode=null, cell=null, hasCells=false, cid=0, title='', foot=0, listed=false, anyGlyph=false, anyText=false;
+ let mode=null, cell=null, hasCells=false, cid=0, title='', listed=false, anyGlyph=false, anyText=false;
  for(let n=1;n<=pdf.numPages;n++){
   say('Reading page '+n+' of '+pdf.numPages+'…');
   const page=await pdf.getPage(n), v1=page.getViewport({scale:1}), vR=page.getViewport({scale:R});
@@ -254,23 +254,27 @@ async function extract(pdf){
   const items=[];
 
   for(const it of tc.items){
-   mode=null; cell=null; hasCells=false;
    const str=norm(it.str||''); if(!str.trim()) continue;
    anyText=true;
    const tr=pdfjsLib.Util.transform(v1.transform,it.transform);
    const fs=Math.hypot(tr[2],tr[3]), x=tr[4], y=tr[5], w=it.width;
+   const atTop=(y<35||y>v1.height-35); /* Latin near a page edge is running header/footer furniture */
    const sty=tc.styles[it.fontName]||{}, f=finfo(it.fontName), fname=(f&&f.name)||'', fam=sty.fontFamily||'';
    const serif=(/serif/i.test(fam)&&!/sans/i.test(fam))||(/song|ming|serif|times/i.test(fname)&&!/sans/i.test(fname));
    const flag=(serif?'S':'N')+(f&&f.bold?'b':'')+(f&&f.italic?'i':'');
 
    const ps=[], emit=(a,b,k,c)=>{ if(b>a) ps.push({a,b,k,c}) };
-   const feed=(t,a,b)=>{
+   const feed=(t,a,b,atTop)=>{
     if(!t) return;
     if(t[0]==='¶'){mode='h';cell=null;hasCells=false;emit(a,b,'hd');return}
     if((mode==='t'||mode==='c')&&/^\d+\s*·/.test(t)){mode='h';cell=null;hasCells=false;emit(a,b,'hd');return}
+    if(atTop&&!reCJK.test(t)){emit(a,b,'hd');return}
     const m=reCell.exec(t);
     if(m&&(mode!=='t'||hasCells)){
-     if(mode===null){ if(!title&&!listed) title=t.replace(/[\d.，。].*$/,''); emit(a,b,'hd'); return }
+     if(mode===null){
+      if(!title&&!listed){title=t.replace(/[\d.，。].*$/,'');mode='h';emit(a,b,'hd');return}
+      mode='h'
+     }
      mode='c'; hasCells=true; cell={n:'',py:0,en:0,id:++cid};
      let p=a; const l1=m[1].length+m[2].length;
      emit(p,p+l1,'zh',cell); p+=l1;
@@ -285,24 +289,31 @@ async function extract(pdf){
     const lm=reLead.exec(t); if(lm){feed(lm[1],a,a+lm[1].length);feed(lm[2],a+lm[1].length,b);return}
     const nm=new RegExp('^(\\d+(?:\\.\\d+)?)(['+PU+']*)$').exec(t);
     if(nm&&!cell.py&&!cell.n){cell.n=nm[1];emit(a,a+nm[1].length,'sup',cell);emit(a+nm[1].length,b,'zh',cell);return}
-    if(!cell.py){cell.py=1;emit(a,b,'py',cell);return}
-    if(!cell.en){cell.en=1;emit(a,b,'en',cell);return}
-    /* a real translation is a sentence; short stray text stays with the word */
-    if(t.split(/\s+/).length>=3||t.length>=25){mode='t';cell=null;emit(a,b,'tr')}
-    else emit(a,b,'en',cell);
+    if(nm&&cell.en){emit(a,b,'hd');return}
+    if(!cell.py){
+     /* all-caps labels (HSK 2 · DAY 1) are headers, never pinyin */
+     if(/^[A-Z][A-Z0-9\s·\-–—]*$/.test(t)&&!/[a-z]/.test(t)&&t.length<=20){emit(a,b,'hd');return}
+     cell.py=1;emit(a,b,'py',cell);return
+    }
+    if(!cell.en){
+     /* a full English sentence is the translation layer, not the word gloss */
+     if((t.split(/\s+/).length>=3||t.length>=25)&&/[A-Za-z]/.test(t)&&!/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(t)){mode='t';cell=null;emit(a,b,'tr');return}
+     cell.en=1;emit(a,b,'en',cell);return
+    }
+    /* after a cell has pinyin+gloss, a further Latin chunk is the translation layer */
+    if(!reCJK.test(t)&&/[A-Za-z]/.test(t)&&cell&&cell.py){mode='t';cell=null;emit(a,b,'tr');return}
+    emit(a,b,'en',cell);
    };
 
    if(str.includes('词语清单')){mode=null;cell=null;listed=true}
-   if(/HSK\s*3\.0\s*Levels/.test(str)) foot=5;
-   if(foot>0){ emit(0,str.length,'hd'); foot=/page\s*\d+\s*\/\s*\d+/.test(str)?0:foot-1 }
+   if((/page\s*\d+\s*\/\s*\d+\s*$/.test(str.trim()))||/^\s*Page\s+\d+\s*$/.test(str.trim())){emit(0,str.length,'hd')}
    else {
     /* split at every ¶ so a paragraph start inside an item is never swallowed by the previous translation */
     const cuts=[0]; for(let i=1;i<str.length;i++) if(str[i]==='¶') cuts.push(i); cuts.push(str.length);
     for(let ci=0;ci<cuts.length-1;ci++){
-     mode=null; cell=null; hasCells=false;
      const s0=cuts[ci], seg=str.slice(s0,cuts[ci+1]);
-     if(reCJK.test(seg)){ for(const mt of seg.matchAll(/\S+/g)) feed(mt[0],s0+mt.index,s0+mt.index+mt[0].length) }
-     else { const a=seg.search(/\S/); if(a>=0){ const b=seg.trimEnd().length; feed(seg.slice(a,b),s0+a,s0+b) } }
+     if(reCJK.test(seg)){ for(const mt of seg.matchAll(/\S+/g)) feed(mt[0],s0+mt.index,s0+mt.index+mt[0].length,atTop) }
+     else { const a=seg.search(/\S/); if(a>=0){ const b=seg.trimEnd().length; feed(seg.slice(a,b),s0+a,s0+b,atTop) } }
     }
    }
 
